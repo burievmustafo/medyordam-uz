@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900;
+  }
+}
+
+/* Print Styles */
+@media print {
+
+  /* Hide navigation and non-essential elements */
+  nav,
+  button:not(.print-keep),
+  .no-print {
+    display: none !important;
+  }
+
+  /* Optimize layout for printing */
+  body {
+    background: white !important;
+  }
+
+  /* Ensure content fits on page */
+  .print-container {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 20px !important;
+  }
+
+  /* Better page breaks */
+  .print-avoid-break {
+    page-break-inside: avoid;
+  }
+
+  /* Adjust colors for print */
+  * {
+    color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Remove shadows and borders for cleaner print */
+  .shadow-sm,
+  .shadow {
+    box-shadow: none !important;
+  }
+
+  /* Ensure borders are visible */
+  .border {
+    border-color: #000 !important;
+  }
+}
