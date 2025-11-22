@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Patient, Diagnosis, Immunization } from '@ems/shared';
+import { Patient, Diagnosis, Immunization } from '../types/shared';
 import { AlertTriangle, Plus, Syringe, FileText, User, Calendar, Activity, ArrowLeft, Search, Printer } from 'lucide-react';
 import { useRecentSearches } from '../hooks/useRecentSearches';
 
