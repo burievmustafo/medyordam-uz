@@ -7,6 +7,7 @@ import { jsonSchemaTransform, serializerCompiler, validatorCompiler } from 'fast
 import dotenv from 'dotenv';
 import { patientRoutes } from './routes/patients';
 import { authRoutes } from './routes/auth';
+import { AppError, formatErrorResponse, handleSupabaseError } from './utils/errors';
 
 dotenv.config();
 
@@ -43,6 +44,46 @@ server.register(swaggerUi, {
 
 server.register(authRoutes, { prefix: '/auth' });
 server.register(patientRoutes, { prefix: '/patients' });
+
+// Global error handler
+server.setErrorHandler((error, request, reply) => {
+    // Log full error for debugging
+    server.log.error({
+        error: error.message,
+        stack: error.stack,
+        url: request.url,
+        method: request.method,
+    });
+
+    // Handle AppError instances
+    if (error instanceof AppError) {
+        const response = formatErrorResponse(error);
+        return reply.status(error.statusCode).send(response);
+    }
+
+    // Handle validation errors from Zod
+    if (error.validation) {
+        return reply.status(400).send({
+            error: 'Validation error',
+            statusCode: 400,
+            code: 'VALIDATION_ERROR',
+            details: error.validation,
+        });
+    }
+
+    // Handle JWT errors
+    if (error.statusCode === 401) {
+        return reply.status(401).send({
+            error: 'Unauthorized',
+            statusCode: 401,
+            code: 'UNAUTHORIZED',
+        });
+    }
+
+    // Generic error response
+    const response = formatErrorResponse(error);
+    return reply.status(500).send(response);
+});
 
 const start = async () => {
     try {

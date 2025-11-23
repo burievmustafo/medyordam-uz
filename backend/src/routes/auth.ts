@@ -2,6 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { supabase } from '../plugins/supabase';
+import { UnauthorizedError, InternalServerError } from '../utils/errors';
 
 export async function authRoutes(app: FastifyInstance) {
     app.withTypeProvider<ZodTypeProvider>().post(
@@ -32,14 +33,11 @@ export async function authRoutes(app: FastifyInstance) {
             });
 
             if (error) {
-                return reply.status(401).send({
-                    message: 'Invalid credentials',
-                    error: error.message,
-                } as any);
+                throw new UnauthorizedError('Invalid email or password');
             }
 
             if (!data.session) {
-                return reply.status(500).send({ message: 'Session not created' } as any);
+                throw new InternalServerError('Session could not be created');
             }
 
             return {

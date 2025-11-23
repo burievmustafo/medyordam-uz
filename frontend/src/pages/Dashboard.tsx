@@ -4,6 +4,7 @@ import { Search, Clock, X, Trash2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useRecentSearches } from '../hooks/useRecentSearches';
 import { useTranslation } from 'react-i18next';
+import { SEO } from '../components/SEO';
 
 export function Dashboard() {
     const [passportId, setPassportId] = useState('');
@@ -47,6 +48,7 @@ export function Dashboard() {
 
     return (
         <div className="max-w-2xl mx-auto mt-8 sm:mt-12 md:mt-20">
+            <SEO title={t('patientSearch')} />
             <div className="text-center mb-6 sm:mb-8 md:mb-10">
                 <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">{t('patientSearch')}</h1>
                 <p className="text-sm sm:text-base text-slate-500">{t('enterPassportId')}</p>

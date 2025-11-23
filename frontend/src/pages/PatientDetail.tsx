@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { Patient, Diagnosis, Immunization } from '../types/shared';
 import { AlertTriangle, Plus, Syringe, FileText, User, Calendar, Activity, ArrowLeft, Search, Printer } from 'lucide-react';
 import { useRecentSearches } from '../hooks/useRecentSearches';
+import { SEO } from '../components/SEO';
 
 export function PatientDetail() {
     const { id } = useParams<{ id: string }>();
@@ -107,10 +108,16 @@ export function PatientDetail() {
         });
 
         if (error) {
-            alert('Error adding diagnosis: ' + error.message);
+            // Check if it's a redundant diagnosis warning from backend
+            if (error.code === 'REDUNDANT_DIAGNOSIS' || error.message?.includes('one-time disease')) {
+                setWarning(error.message || 'Repeated test not required: Patient already has this diagnosis.');
+            } else {
+                alert('Error adding diagnosis: ' + error.message);
+            }
         } else {
             setShowAddModal(false);
             setNewDiagnosis({ name: '', description: '' });
+            setWarning(null);
         }
         setSubmitting(false);
     };
@@ -170,6 +177,10 @@ export function PatientDetail() {
 
     return (
         <div className="space-y-6">
+            <SEO
+                title={patient.full_name}
+                description={`Medical history and records for ${patient.full_name}`}
+            />
             {/* Breadcrumb & Back Button with Quick Search */}
             <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4">

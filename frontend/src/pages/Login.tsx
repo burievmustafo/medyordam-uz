@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { Activity } from 'lucide-react';
+import { SEO } from '../components/SEO';
 
 export function Login() {
     const [email, setEmail] = useState('');
@@ -26,6 +27,7 @@ export function Login() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50">
+            <SEO title="Login" />
             <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md border border-slate-100">
                 <div className="flex flex-col items-center mb-8">
                     <div className="bg-medical-50 p-3 rounded-full mb-4">

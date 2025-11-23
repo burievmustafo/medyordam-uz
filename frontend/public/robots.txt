@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Disallow private routes
+Disallow: /patients/
+
+Sitemap: https://medyordam.uz/sitemap.xml

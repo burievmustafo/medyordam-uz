@@ -2,13 +2,15 @@ import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { supabase } from '../plugins/supabase';
+import { NotFoundError, ValidationError, handleSupabaseError } from '../utils/errors';
 
 export async function patientRoutes(app: FastifyInstance) {
     app.addHook('onRequest', async (request, reply) => {
         try {
             await request.jwtVerify();
         } catch (err) {
-            reply.send(err);
+            // JWT verification errors are handled by global error handler
+            throw err;
         }
     });
 
@@ -32,7 +34,7 @@ export async function patientRoutes(app: FastifyInstance) {
                 .single();
 
             if (error || !data) {
-                return reply.status(404).send({ message: 'Patient not found' });
+                throw new NotFoundError('Patient not found');
             }
 
             return data;
@@ -59,7 +61,7 @@ export async function patientRoutes(app: FastifyInstance) {
                 .order('created_at', { ascending: false });
 
             if (error) {
-                return reply.status(500).send(error);
+                throw handleSupabaseError(error);
             }
 
             return data;
@@ -88,17 +90,25 @@ export async function patientRoutes(app: FastifyInstance) {
             // Rule Engine: Check for redundant tests
             const oneTimeDiseases = ['measles', 'mumps', 'chickenpox'];
             if (oneTimeDiseases.includes(diagnosis_name.toLowerCase())) {
-                const { data: existing } = await supabase
+                const { data: existing, error: checkError } = await supabase
                     .from('diagnoses')
-                    .select('id')
+                    .select('id, diagnosis_name, created_at')
                     .eq('patient_id', id)
                     .ilike('diagnosis_name', diagnosis_name)
                     .single();
 
-                if (existing) {
-                    // We still add it, but frontend will show warning. 
-                    // Or we can return a warning in the response.
-                    // Requirement says "show warning". Let's add a flag in response.
+                if (existing && !checkError) {
+                    // Return warning - prevent redundant test
+                    throw new ValidationError(
+                        `Patient already has diagnosis: ${diagnosis_name}. This is a one-time disease and should not be diagnosed again.`,
+                        'REDUNDANT_DIAGNOSIS',
+                        true, // warning flag
+                        {
+                            id: existing.id,
+                            diagnosis_name: existing.diagnosis_name,
+                            created_at: existing.created_at,
+                        }
+                    );
                 }
             }
 
@@ -114,7 +124,7 @@ export async function patientRoutes(app: FastifyInstance) {
                 .single();
 
             if (error) {
-                return reply.status(500).send(error);
+                throw handleSupabaseError(error);
             }
 
             return data;
@@ -140,7 +150,7 @@ export async function patientRoutes(app: FastifyInstance) {
                 .eq('patient_id', id);
 
             if (error) {
-                return reply.status(500).send(error);
+                throw handleSupabaseError(error);
             }
 
             return data;

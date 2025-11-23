@@ -18,7 +18,15 @@ A production-ready system for ambulance/emergency doctors to check patient medic
 
 ### 2. Environment Variables
 1. Backend: Copy `backend/.env.example` to `backend/.env` and fill in Supabase credentials.
+   ```bash
+   cp backend/.env.example backend/.env
+   # Then edit backend/.env with your actual values
+   ```
 2. Frontend: Copy `frontend/.env.example` to `frontend/.env` and fill in Supabase credentials.
+   ```bash
+   cp frontend/.env.example frontend/.env
+   # Then edit frontend/.env with your actual values
+   ```
 
 ### 3. Run Locally
 ```bash
@@ -43,5 +51,17 @@ docker-compose up --build
 ## Features
 - **Patient Search**: Search by Passport ID.
 - **Real-time History**: Updates instantly when new diagnoses are added.
-- **Rule Engine**: Warns if adding a redundant test (e.g., Measles).
+- **Rule Engine**: Prevents redundant tests (e.g., Measles, Mumps, Chickenpox) - enforced on both frontend and backend.
 - **Role-Based Access**: Doctors see patients, Admins see all.
+- **Error Handling**: Comprehensive error handling with proper error codes and messages.
+- **Testing**: Unit tests for critical business logic and error handling.
+
+## Testing
+```bash
+# Run backend tests
+cd backend
+npm test
+
+# Run tests in watch mode
+npm test -- --watch
+```
